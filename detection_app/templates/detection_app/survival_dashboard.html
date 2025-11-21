@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Survival Analysis Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-5">
+    <h1 class="mb-4">Survival Analysis Dashboard</h1>
+
+    {% if cox_model_exists %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Cox Proportional Hazards Model</h5>
+                </div>
+                <div class="card-body">
+                    {% if cox_coefficients %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Feature</th>
+                                        <th>Coefficient</th>
+                                        <th>Hazard Ratio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for feature, coef in cox_coefficients.items %}
+                                    <tr>
+                                        <td>{{ feature }}</td>
+                                        <td>{{ coef|floatformat:4 }}</td>
+                                        <td>{{ coef|add:"1"|floatformat:3 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Insufficient data for Cox model. Add more follow-up records with event status.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Cohort Statistics</h5>
+                </div>
+                <div class="card-body">
+                    {% if cohort_stats %}
+                        <p><strong>Total Patients:</strong> {{ cohort_stats.total_patients }}</p>
+                        <p><strong>Patients with Follow-up:</strong> {{ cohort_stats.patients_with_followup }}</p>
+                        <p><strong>Events (Death/Relapse):</strong> {{ cohort_stats.total_events }}</p>
+                        <p><strong>Mean Survival Days:</strong> {{ cohort_stats.mean_survival_days|floatformat:1 }}</p>
+                        <p><strong>Median Follow-up Days:</strong> {{ cohort_stats.median_followup_days|floatformat:1 }}</p>
+                    {% else %}
+                        <p class="text-muted">No cohort data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Kaplan-Meier Curve</h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if km_curve %}
+                        <img src="data:image/png;base64,{{ km_curve }}" alt="Kaplan-Meier Curve" style="max-width: 100%; height: auto;">
+                        <p class="text-muted mt-2"><small>Survival curves stratified by detection risk level</small></p>
+                    {% else %}
+                        <p class="text-muted">No KM curve data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">ROC Curve (Survival Prediction)</h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if roc_curve %}
+                        <img src="data:image/png;base64,{{ roc_curve }}" alt="ROC Curve" style="max-width: 100%; height: auto;">
+                        <p class="text-muted mt-2"><small>ROC curve for survival prediction model</small></p>
+                    {% else %}
+                        <p class="text-muted">No ROC curve data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="alert alert-info">
+        <h5>Insufficient Data</h5>
+        <p>Cox model requires at least one patient with follow-up records and event status. Please add follow-up data to patients before viewing this dashboard.</p>
+    </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

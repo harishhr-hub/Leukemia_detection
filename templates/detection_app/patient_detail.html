@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container">
+    <div class="patient-detail-container">
+        <div class="patient-header">
+            <h2>{{ patient.name }}</h2>
+            <div class="patient-actions">
+                <a href="{% url 'detect_leukemia' patient.id %}" class="btn btn-primary">New Detection</a>
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+            </div>
+        </div>
+
+        <div class="patient-info">
+            <div class="info-card">
+                <h3>Patient Information</h3>
+                <p><strong>Age:</strong> {{ patient.age }}</p>
+                <p><strong>Gender:</strong> {{ patient.get_gender_display }}</p>
+                <p><strong>Medical History:</strong></p>
+                <p class="medical-history">{{ patient.medical_history|linebreaks }}</p>
+            </div>
+        </div>
+
+        <div class="detection-history">
+            <h3>Detection History</h3>
+            {% if detections %}
+                <div class="detection-list">
+                    {% for detection in detections %}
+                        <div class="detection-card">
+                            <div class="detection-image">
+                                <img src="{{ detection.image.url }}" alt="Blood Smear Image">
+                            </div>
+                            <div class="detection-info">
+                                <p class="detection-date">{{ detection.date_detected|date:"F d, Y H:i" }}</p>
+                                <p class="detection-result {{ detection.detection_result|lower }}">
+                                    Result: {{ detection.detection_result }}
+                                </p>
+                                <p class="risk-level {{ detection.risk_level|lower }}">
+                                    Risk Level: {{ detection.risk_level }}
+                                </p>
+                                
+                                <!-- FAB Classification Display -->
+                                {% if detection.leukemia_type %}
+                                    <p class="fab-classification">
+                                        <strong>Leukemia Type:</strong> 
+                                        {% if detection.leukemia_type == 'ALL' %}
+                                            Acute Lymphoblastic Leukemia (ALL)
+                                        {% elif detection.leukemia_type == 'AML' %}
+                                            Acute Myeloid Leukemia (AML)
+                                        {% elif detection.leukemia_type == 'CLL' %}
+                                            Chronic Lymphocytic Leukemia (CLL)
+                                        {% elif detection.leukemia_type == 'CML' %}
+                                            Chronic Myeloid Leukemia (CML)
+                                        {% elif detection.leukemia_type == 'NORMAL' %}
+                                            Normal/Healthy
+                                        {% else %}
+                                            {{ detection.leukemia_type }}
+                                        {% endif %}
+                                    </p>
+                                {% endif %}
+                                
+                                {% if detection.all_fab_classification %}
+                                    <p class="fab-subtype">
+                                        <strong>ALL FAB Classification:</strong> {{ detection.all_fab_classification }}
+                                        {% if detection.all_fab_classification == 'L1' %}
+                                            (Small uniform cells)
+                                        {% elif detection.all_fab_classification == 'L2' %}
+                                            (Large heterogeneous cells)
+                                        {% elif detection.all_fab_classification == 'L3' %}
+                                            (Large, heavily vacuolated cells - Burkitt-like)
+                                        {% endif %}
+                                    </p>
+                                {% endif %}
+                                
+                                {% if detection.aml_fab_classification %}
+                                    <p class="fab-subtype">
+                                        <strong>AML FAB Classification:</strong> {{ detection.aml_fab_classification }}
+                                        {% if detection.aml_fab_classification == 'M0' %}
+                                            (Undifferentiated AML)
+                                        {% elif detection.aml_fab_classification == 'M1' %}
+                                            (AML with minimal differentiation)
+                                        {% elif detection.aml_fab_classification == 'M2' %}
+                                            (AML with differentiation)
+                                        {% elif detection.aml_fab_classification == 'M3' %}
+                                            (Acute Promyelocytic Leukemia - APL)
+                                        {% elif detection.aml_fab_classification == 'M4' %}
+                                            (Acute Myelomonocytic Leukemia)
+                                        {% elif detection.aml_fab_classification == 'M5' %}
+                                            (Acute Monocytic Leukemia)
+                                        {% elif detection.aml_fab_classification == 'M6' %}
+                                            (Acute Erythroid Leukemia)
+                                        {% elif detection.aml_fab_classification == 'M7' %}
+                                            (Acute Megakaryocytic Leukemia)
+                                        {% endif %}
+                                    </p>
+                                {% endif %}
+                                
+                                {% if detection.report_generated %}
+                                    <a href="{% url 'download_report' detection.id %}" class="btn btn-success btn-sm">
+                                        Download Report
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'generate_report' detection.id %}" class="btn btn-primary btn-sm">
+                                        Generate Report
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-detections">No detections performed yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

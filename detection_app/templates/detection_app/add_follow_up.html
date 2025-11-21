@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Add Follow-up - {{ patient.name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2>Add Follow-up for {{ patient.name }}</h2>
+            <p class="text-muted">Record patient visit and clinical status</p>
+            
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <label for="{{ form.visit_date.id_for_label }}" class="form-label">Visit Date</label>
+                    {{ form.visit_date }}
+                    {% if form.visit_date.errors %}
+                        <div class="invalid-feedback d-block">{{ form.visit_date.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="{{ form.event_status.id_for_label }}" class="form-label">Event Status</label>
+                    {{ form.event_status }}
+                    {% if form.event_status.errors %}
+                        <div class="invalid-feedback d-block">{{ form.event_status.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="{{ form.survival_days.id_for_label }}" class="form-label">Survival Days (from diagnosis)</label>
+                    {{ form.survival_days }}
+                    {% if form.survival_days.errors %}
+                        <div class="invalid-feedback d-block">{{ form.survival_days.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="{{ form.notes.id_for_label }}" class="form-label">Notes</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                        <div class="invalid-feedback d-block">{{ form.notes.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Save Follow-up</button>
+                    <a href="{% url 'patient_detail' patient.pk %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    form input[type="date"],
+    form select,
+    form textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+    
+    form textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+</style>
+{% endblock %}

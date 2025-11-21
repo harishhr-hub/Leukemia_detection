@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="detection-form-container">
+        <h2>Leukemia Detection - {{ patient.name }}</h2>
+        <div class="detection-instructions">
+            <h4>Instructions:</h4>
+            <ol>
+                <li>Upload a clear blood smear image</li>
+                <li>Image should be well-focused and properly stained</li>
+                <li>Ensure proper lighting conditions</li>
+                <li>Wait for the analysis to complete</li>
+            </ol>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="detection-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.image.id_for_label }}">Blood Smear Image</label>
+                {{ form.image }}
+                {% if form.image.errors %}
+                    <div class="field-errors">
+                        {% for error in form.image.errors %}
+                            <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="form-preview">
+                <img id="imagePreview" src="#" alt="Image Preview" style="display: none; max-width: 100%; margin-top: 10px;">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Start Detection</button>
+                <a href="{% url 'patient_detail' patient.id %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('{{ form.image.id_for_label }}').onchange = function(e) {
+        const preview = document.getElementById('imagePreview');
+        preview.style.display = 'block';
+        preview.src = URL.createObjectURL(this.files[0]);
+    }
+</script>
+{% endblock %}

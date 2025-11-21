@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Survival Analysis - {{ patient.name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h2>Survival Analysis: {{ patient.name }}</h2>
+            <p class="text-muted">Risk assessment and prognostic data</p>
+
+            {% if survival_analysis %}
+            <div class="card mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Risk Assessment</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p class="text-muted">Risk Score</p>
+                            <h4>{{ survival_analysis.risk_score|floatformat:3 }}</h4>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="text-muted">Risk Group</p>
+                            <h4>
+                                {% if survival_analysis.risk_group == 'HIGH' %}
+                                    <span class="badge bg-danger">{{ survival_analysis.risk_group }}</span>
+                                {% elif survival_analysis.risk_group == 'INTERMEDIATE' %}
+                                    <span class="badge bg-warning">{{ survival_analysis.risk_group }}</span>
+                                {% else %}
+                                    <span class="badge bg-success">{{ survival_analysis.risk_group }}</span>
+                                {% endif %}
+                            </h4>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="text-muted">Predicted Survival</p>
+                            <h4>{{ survival_analysis.predicted_survival_months|floatformat:1 }} months</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Follow-up History</h5>
+                </div>
+                <div class="card-body">
+                    {% if follow_ups %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Visit Date</th>
+                                        <th>Event Status</th>
+                                        <th>Survival Days</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for follow_up in follow_ups %}
+                                    <tr>
+                                        <td>{{ follow_up.visit_date|date:"Y-m-d" }}</td>
+                                        <td>
+                                            {% if follow_up.event_status == 'DEATH' %}
+                                                <span class="badge bg-danger">{{ follow_up.event_status }}</span>
+                                            {% elif follow_up.event_status == 'RELAPSE' %}
+                                                <span class="badge bg-warning">{{ follow_up.event_status }}</span>
+                                            {% else %}
+                                                <span class="badge bg-success">{{ follow_up.event_status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ follow_up.survival_days }}</td>
+                                        <td>{{ follow_up.notes|truncatewords:10 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No follow-up records yet. <a href="{% url 'add_follow_up' patient.pk %}">Add one now</a></p>
+                    {% endif %}
+                    <a href="{% url 'add_follow_up' patient.pk %}" class="btn btn-primary btn-sm mt-3">Add Follow-up</a>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a href="{% url 'survival_dashboard' %}" class="btn btn-info">View Cohort Analysis</a>
+                <a href="{% url 'patient_detail' patient.pk %}" class="btn btn-secondary">Back to Patient</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

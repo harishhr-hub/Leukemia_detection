@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}ROC Curve - Survival Prediction{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h2 class="mb-4">ROC Curve: Survival Prediction</h2>
+            
+            {% if roc_curve %}
+            <div class="card">
+                <div class="card-body text-center">
+                    <img src="data:image/png;base64,{{ roc_curve }}" alt="ROC Curve" style="max-width: 100%; height: auto;">
+                    <p class="text-muted mt-3"><small>Receiver Operating Characteristic curve for survival outcome prediction</small></p>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-warning">
+                <p>ROC curve not available. Ensure patients have follow-up records with event status.</p>
+            </div>
+            {% endif %}
+
+            <div class="mt-4">
+                <a href="{% url 'survival_dashboard' %}" class="btn btn-primary">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h2>Welcome, {{ user.username }}</h2>
+        <a href="{% url 'add_patient' %}" class="btn btn-primary">Add New Patient</a>
+    </div>
+
+    <div class="patients-list">
+        {% if patients %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Gender</th>
+                            <th>Last Detection</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                            <tr>
+                                <td>{{ patient.name }}</td>
+                                <td>{{ patient.age }}</td>
+                                <td>{{ patient.get_gender_display }}</td>
+                                <td>
+                                    {% with last_detection=patient.detections.first %}
+                                        {% if last_detection %}
+                                            {{ last_detection.date_detected|date:"M d, Y" }}
+                                        {% else %}
+                                            No detections yet
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'patient_detail' patient.pk %}" class="btn btn-info btn-sm">View</a>
+                                    <a href="{% url 'detect_leukemia' patient.id %}" class="btn btn-primary btn-sm">New Detection</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="no-patients">
+                <p>No patients added yet.</p>
+                <a href="{% url 'add_patient' %}" class="btn btn-primary">Add Your First Patient</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
